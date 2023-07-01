@@ -8,6 +8,11 @@ from pythonsph.config import Config
     N,
     SIM_W,
     BOTTOM,
+    SIM_R,
+    SIM_CEN_X,
+    SIM_CEN_Y,
+    SIM_FILL_TOP,
+    SIM_FILL_SPACING,
     DAM,
     DAM_BREAK,
     G,
@@ -99,26 +104,36 @@ class Particle:
             self.x_vel *= VEL_DAMP
             self.y_vel *= VEL_DAMP
 
-        # Wall constraints, if a particle is out of bounds, create a spring force to bring it back
-        if self.x_pos < -SIM_W:
-            self.x_force -= (self.x_pos - -SIM_W) * WALL_DAMP
-            self.visual_x_pos = -SIM_W
+        # Circle boundary force         
+        # Calculate the distance from the center of the circle
+        dx = self.x_pos - SIM_CEN_X
+        dy = self.y_pos - SIM_CEN_Y
+        distance = sqrt(dx*dx + dy*dy)
 
-        # Same thing as a wall constraint but for the dam that will move from dam to SIM_W
-        if dam is True and self.x_pos > DAM:
-            self.x_force -= (self.x_pos - DAM) * WALL_DAMP
+        if distance > SIM_R:
+            # Calculate the direction from the center to the particle
+            direction = [dx / distance, dy / distance]
 
-        # Same thing for the right wall
-        if self.x_pos > SIM_W:
-            self.x_force -= (self.x_pos - SIM_W) * WALL_DAMP
-            self.visual_x_pos = SIM_W
-
-        # Same thing but for the floor
-        if self.y_pos < BOTTOM:
-            # We use SIM_W instead of BOTTOM here because otherwise particles are too low
-            self.y_force -= (self.y_pos - SIM_W) * WALL_DAMP
-            self.visual_y_pos = BOTTOM
-
+            # Position the particle on the perimeter of the circle
+            self.visual_x_pos = SIM_CEN_X + direction[0] * SIM_R
+            self.visual_y_pos = SIM_CEN_Y + direction[1] * SIM_R
+            
+            # Apply boundary force to particle
+            bound_fact = WALL_DAMP * (distance - SIM_R)
+            self.x_force -= direction[0] * bound_fact
+            self.y_force -= direction[1] * bound_fact
+        
+        # Circle boundary damping
+        #DAMP_DIST = 0.15
+        #DAMP_K = 0.1
+        #if (SIM_R - distance) < DAMP_DIST:
+        #    damp_factor = 1 - ((SIM_R - distance) * DAMP_K)
+        #    self.x_force *= damp_factor
+        #    self.y_force *= damp_factor
+            #damp_factor = (SIM_R - distance) / DAMP_DIST
+            #self.x_force *= (1 - DAMP_K * damp_factor)
+            #self.y_force *= (1 - DAMP_K * damp_factor)
+        
         # Reset density
         self.rho = 0.0
         self.rho_near = 0.0

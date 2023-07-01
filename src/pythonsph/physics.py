@@ -10,6 +10,11 @@ from pythonsph.particle import Particle
     N,
     SIM_W,
     BOTTOM,
+    SIM_R,
+    SIM_CEN_X,
+    SIM_CEN_Y,
+    SIM_FILL_TOP,
+    SIM_FILL_SPACING,
     DAM,
     DAM_BREAK,
     G,
@@ -54,6 +59,33 @@ def start(
             y_pos += space
     return result
 
+def in_circle(x, y, circ_x, circ_y, circ_r):
+    dx = x - circ_x
+    dy = y - circ_y
+    distance = sqrt(dx*dx + dy*dy)
+    return distance < (circ_r * 1.01)
+
+def start_circle(r, cen_x, cen_y, top, spacing) -> list[Particle]:
+    result = []
+
+    x_left = cen_x - r
+    x_right = cen_x + r
+    y_bottom = cen_y - r
+    y_top = top
+    stride = spacing
+
+    y_pos = y_top
+    while y_pos >= y_bottom:
+        x_pos = x_left
+        while x_pos <= x_right:
+            if not in_circle(x_pos, y_pos, cen_x, cen_y, r):
+                x_pos += stride
+                continue
+            result.append(Particle(x_pos, y_pos))
+            x_pos += stride
+        y_pos -= stride
+
+    return result
 
 def calculate_density(particles: list[Particle]) -> None:
     """

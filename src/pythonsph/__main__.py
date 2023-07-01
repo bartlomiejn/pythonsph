@@ -8,26 +8,26 @@ https://github.com/AlexandreSajus
 https://web.archive.org/web/20090722233436/http://blog.brandonpelfrey.com/?p=303
 """
 
+import sys
 import numpy as np
 from matplotlib import animation
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button
 
 import pythonsph
 from pythonsph.config import Config
 from pythonsph.particle import Particle
-from pythonsph.physics import (
-    start,
-    calculate_density,
-    create_pressure,
-    calculate_viscosity,
-)
-
-print(f"Hello world from {pythonsph.__name__} ({pythonsph.__doc__})")
+import pythonsph.physics as physics 
 
 (
     N,
     SIM_W,
-    BOTTOM,
+    BOTTOM, 
+    SIM_R,
+    SIM_CEN_X,
+    SIM_CEN_Y,
+    SIM_FILL_TOP,
+    SIM_FILL_SPACING,
     DAM,
     DAM_BREAK,
     G,
@@ -52,31 +52,36 @@ def update(particles: list[Particle], dam: bool) -> list[Particle]:
         particle.update_state(dam)
 
     # Calculate density
-    calculate_density(particles)
+    physics.calculate_density(particles)
 
     # Calculate pressure
     for particle in particles:
         particle.calculate_pressure()
 
     # Apply pressure force
-    create_pressure(particles)
+    physics.create_pressure(particles)
 
     # Apply viscosity force
-    calculate_viscosity(particles)
+    physics.calculate_viscosity(particles)
 
     return particles
 
 
 # Setup matplotlib
 fig = plt.figure()
-axes = fig.add_subplot(xlim=(-SIM_W, SIM_W), ylim=(0, SIM_W))
+axes = fig.add_subplot(xlim=(-SIM_W, SIM_W), ylim=(-SIM_W, SIM_W))
 (POINTS,) = axes.plot([], [], "bo", ms=20)
+axes.set_aspect('equal')
 
-simulation_state = start(-SIM_W, DAM, BOTTOM, 0.03, N)
+simulation_state = physics.start_circle(SIM_R, SIM_CEN_X, SIM_CEN_Y, SIM_FILL_TOP, SIM_FILL_SPACING)
+
+if not simulation_state:
+    print("No particles generated, exiting")
+    sys.exit(-1)
 
 frame = 0
 
-dam_built = True
+dam_built = False
 
 # Animation function
 def animate(i: int):
