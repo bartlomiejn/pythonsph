@@ -13,7 +13,7 @@ SIM_CEN_X = 0.0
 SIM_CEN_Y = 0.0
 
 # Fill
-SIM_FILL_TOP = 0.1
+SIM_FILL_TOP = -0.2
 SIM_FILL_SPACING = 0.03
 
 # Dam
@@ -22,7 +22,7 @@ DAM_BREAK = 200  # Number of frames before the dam breaks
 
 # Physics parameters
 G = 0.02 * 0.25  # Acceleration of gravity
-SPACING = 0.10  # Spacing between particles, used to calculate pressure
+SPACING = 0.16  # Spacing between particles, used to calculate pressure
 K = SPACING / 1000.0  # Pressure factor
 K_NEAR = K * 10  # Near pressure factor, pressure when particles are close to each other
 # Default density, will be compared to local density to calculate pressure
@@ -30,7 +30,7 @@ REST_DENSITY = 2.0
 # Neighbour radius, if the distance between two particles is less than R, they are neighbours
 R = SPACING * 1.5
 SIGMA = 0.2  # Viscosity factor
-MAX_VEL = 1.5  # Maximum velocity of particles, used to avoid instability
+MAX_VEL = 1.0  # Maximum velocity of particles, used to avoid instability
 # Wall constraints factor, how much the particle is pushed away from the simulation walls
 WALL_DAMP = 0.05
 VEL_DAMP = 0.5  # Velocity reduction factor when particles are going above MAX_VEL

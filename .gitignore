@@ -141,4 +141,5 @@ temp.py
 # Photoshop
 *.psd
 
+**/*.swo
 **/*.swp
